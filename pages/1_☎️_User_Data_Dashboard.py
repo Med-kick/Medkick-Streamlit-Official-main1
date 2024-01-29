@@ -72,9 +72,6 @@ def main():
     
     df = pd.DataFrame(df)
 
-    # Read only the first 300 rows
-    df = df.head(1000)
-
     st.dataframe(df)
 
     # Convert 'Start Time (local)' column to datetime format
