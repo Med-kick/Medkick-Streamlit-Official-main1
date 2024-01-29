@@ -102,15 +102,17 @@ def main():
     # Function to check if a nurse met the criteria for an inbound call
     def evaluate_performance(row):
         try:
-            from_component, to_component = extract_call_components(row)
+            from_component = re.sub(r'\D', '', row['From Number'])
+            to_component = re.sub(r'\D', '', row['To Number'])
+        
             if row['Direction'] == 'INBOUND':
                 answer_time_str = row['Answer Time']
 
                 # Check if answer time is '--:--:--', treat as no answer
                 if answer_time_str == '--:--:--':
                     duration = 0
-                    from_number = re.sub(r'\D', '', row['From'])  # Extract only numeric part
-                    to_number = re.sub(r'\D', '', row['To'])      # Extract only numeric part
+                    from_number = re.sub(r'\D', '', row['From Number'])  # Extract only numeric part
+                    to_number = re.sub(r'\D', '', row['To Number'])      # Extract only numeric part
 
                     # Check if the nurse answered the patient's call for at least 30 seconds
                     if row['Duration'] >= 30:
@@ -118,38 +120,37 @@ def main():
 
                     # Look for an outbound call initiated by the nurse to the patient
                     call_back_row_nurse = df[(df['Direction'] == 'OUTBOUND') & 
-                                       (df['To'].apply(lambda x: re.sub(r'\D', '', x)[-10:]) == from_number[-10:]) & 
-                                       (df['From'].apply(lambda x: re.sub(r'\D', '', x)) == to_number) & 
+                                       (df['To Number'].apply(lambda x: re.sub(r'\D', '', x)[-10:]) == from_number[-10:]) & 
+                                       (df['From Number'].apply(lambda x: re.sub(r'\D', '', x)) == to_number) & 
                                        (row['Start Time (rounded)'] - pd.Timedelta(seconds=10) <= df['Start Time (rounded)']) & 
                                        (df['Start Time (rounded)'] <= row['Start Time (rounded)'] + pd.Timedelta(hours=1)) & 
                                        (df['Duration'] >= 1)].head(1)
-                
+
                     # Look for an inbound call initiated by the patient to the nurse
                     call_back_row_patient = df[(df['Direction'] == 'INBOUND') & 
-                                       (df['To'].apply(lambda x: re.sub(r'\D', '', x)[-10:]) == to_number) & 
-                                       (df['From'].apply(lambda x: re.sub(r'\D', '', x)) == from_number[-10:]) & 
+                                       (df['To Number'].apply(lambda x: re.sub(r'\D', '', x)[-10:]) == to_number) & 
+                                       (df['From Number'].apply(lambda x: re.sub(r'\D', '', x)) == from_number[-10:]) & 
                                        (row['Start Time (rounded)'] - pd.Timedelta(seconds=10) <= df['Start Time (rounded)']) & 
                                        (df['Start Time (rounded)'] <= row['Start Time (rounded)'] + pd.Timedelta(hours=1)) & 
                                        (df['Duration'] >= 30)].head(1)
-                
+
                     # Look for call backs > 1hr and < 10hr
                     call_back_nurse_1hr_10hr = df[(df['Direction'] == 'OUTBOUND') & 
-                                                  (df['From'].apply(lambda x: re.sub(r'\D', '', x)) == to_number) &
-                                                  (df['To'].apply(lambda x: re.sub(r'\D', '', x)[-10:]) == from_number[-10:]) &
+                                                  (df['From Number'].apply(lambda x: re.sub(r'\D', '', x)) == to_number) &
+                                                  (df['To Number'].apply(lambda x: re.sub(r'\D', '', x)[-10:]) == from_number[-10:]) &
                                                   (row['Start Time (rounded)'] + pd.Timedelta(hours=1) <= df['Start Time (rounded)']) &
                                                   (df['Start Time (rounded)'] <= row['Start Time (rounded)'] + pd.Timedelta(hours=10))]
 
                     call_back_patient_1hr_10hr = df[(df['Direction'] == 'INBOUND') &
-                                                    (df['To'].apply(lambda x: re.sub(r'\D', '', x)[-10:]) == to_number) &
-                                                    (df['From'].apply(lambda x: re.sub(r'\D', '', x)) == from_number[-10:]) &
+                                                    (df['To Number'].apply(lambda x: re.sub(r'\D', '', x)[-10:]) == to_number) &
+                                                    (df['From Number'].apply(lambda x: re.sub(r'\D', '', x)) == from_number[-10:]) &
                                                     (row['Start Time (rounded)'] + pd.Timedelta(hours=1) <= df['Start Time (rounded)']) &
                                                     (df['Start Time (rounded)'] <= row['Start Time (rounded)'] + pd.Timedelta(hours=10))]
-
 
                     if not call_back_row_nurse.empty:
                         # Ensure that the nurse called back and it's an outbound call
                         if call_back_row_nurse['Direction'].values[0] == 'OUTBOUND':
-                            call_back_time = pd.to_datetime(call_back_row_nurse['Start Time (rounded)'].values[0])
+                            call_back_time = pd.to_datetime(call_back_row_nurse['Start Time (rounded)'].values[0]).tz_roundedize(None)
                             duration_call_back = call_back_row_nurse['Duration'].values[0]
                             return f'Met criteria. Did not answer. Nurse called back in 1hr. '
                         else:
@@ -157,7 +158,7 @@ def main():
                     elif not call_back_row_patient.empty:
                         # Ensure that the patient called back and it's an inbound call
                         if call_back_row_patient['Direction'].values[0] == 'INBOUND':
-                            call_back_time = pd.to_datetime(call_back_row_patient['Start Time (rounded)'].values[0])
+                            call_back_time = pd.to_datetime(call_back_row_patient['Start Time (rounded)'].values[0]).tz_roundedize(None)
                             duration_call_back = call_back_row_patient['Duration'].values[0]
                             return f'Met criteria. Did not answer. Patient called back in 1hr.'
                         else:
@@ -165,7 +166,7 @@ def main():
                     elif not call_back_nurse_1hr_10hr.empty:
                         # Ensure that the nurse called back and it's an outbound call
                         if call_back_nurse_1hr_10hr['Direction'].values[0] == 'OUTBOUND':
-                            call_back_time = pd.to_datetime(call_back_nurse_1hr_10hr['Start Time (rounded)'].values[0])
+                            call_back_time = pd.to_datetime(call_back_nurse_1hr_10hr['Start Time (rounded)'].values[0]).tz_roundedize(None)
                             duration_call_back = call_back_nurse_1hr_10hr['Duration'].values[0]
                             return f'Did not Met criteria. Did not answer. Nurse called back in 10hr>&>1hr. '
                         else:
@@ -173,24 +174,23 @@ def main():
                     elif not call_back_patient_1hr_10hr.empty:
                         # Ensure that the patient called back and it's an inbound call
                         if call_back_patient_1hr_10hr['Direction'].values[0] == 'INBOUND':
-                            call_back_time = pd.to_datetime(call_back_patient_1hr_10hr['Start Time (rounded)'].values[0])
+                            call_back_time = pd.to_datetime(call_back_patient_1hr_10hr['Start Time (rounded)'].values[0]).tz_roundedize(None)
                             duration_call_back = call_back_patient_1hr_10hr['Duration'].values[0]
                             return f'Did not Met criteria. Did not answer. Patient called back in 10hr>&>1hr.'
                         else:
                             return f'Did not answer. Nurse did not call back in <10hr.'
                     else:
                         return f'Did not answer. Nurse did not call back in 10hr.'
-            
+        
                 answer_time = pd.to_datetime(answer_time_str)
-                end_time = pd.to_datetime(row['End Time'])
+                end_time = pd.to_datetime(row['End Time']).tz_localize(None)  # Assuming 'End Time' is in UTC
                 duration = row['Duration']
 
                 # Check if the call was answered for at least 30 seconds
                 if duration >= 30:
                     return f'Met criteria. Answered for {duration} seconds.'
-
                 else:
-                    return f"Did not meet criteria. Received call at {answer_time} from {row['From']}."
+                    return f"Did not meet criteria. Received call at {answer_time} from {row['From Number']}."
 
             elif row['Direction'] == 'OUTBOUND':
                 # You can add additional conditions for outbound calls if needed
@@ -312,9 +312,3 @@ def main():
             # Display only specific columns
             display_columns = ['From', 'To', 'Start Time (rounded)', 'Duration', 'Direction', 'Performance']
             st.write(filtered_df[filtered_df['Performance'].str.startswith('Met criteria')][display_columns])
-    
-
-    
-    
-if __name__ == "__main__":
-    main()
