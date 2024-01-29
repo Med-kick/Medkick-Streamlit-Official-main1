@@ -73,6 +73,8 @@ def main():
     # Read only the first 300 rows
     df = df.head(1000)
 
+    st.dataframe(df)
+
     # Convert 'Start Time (rounded)' column to datetime format
     try:
         df['Start Time (rounded)'] = pd.to_datetime(df['Start Time (rounded)'], errors='coerce')
