@@ -17,7 +17,75 @@ from AWSSupport import GetNurseListFromServer, GetAllCsvDataFromS3
 
 def CleanDataInput(df):
     
+    # convert the From Number and To Number to string
+    df["From"] = df["From"].astype(str)
+    df["To"] = df["To"].astype(str)
+    
+    # Your previous data cleaning steps
+    df = df.drop(['Start Time (local)', 'Answer Time (local)', 'End Time (local)'], axis=1)
+    df["Start Time"] = pd.to_datetime(df["Start Time"], errors="coerce")
+    df["Answer Time"] = pd.to_datetime(df["Answer Time"], errors="coerce")
+    df["End Time"] = pd.to_datetime(df["End Time"], errors="coerce")
+    df["Duration"] = df["Duration"].astype(int)
+    df["Disposition"] = df["Disposition"].astype(int)
+    df["From Number"] = df["From"].apply(lambda x: re.findall(r"\((\d+)\)", x)[0] if re.findall(r"\((\d+)\)", x) else np.nan)
+    df["To Number"] = df["To"].apply(lambda x: re.findall(r"\((\d+)\)", x)[0] if re.findall(r"\((\d+)\)", x) else np.nan)
+    df["Start Time (rounded)"] = df["Start Time"].dt.round("min")
+    df = df[["From", "From Number", "To", 'To Number', "Start Time", "Start Time (rounded)", "Answer Time", "End Time", "Duration", "Disposition", "Direction"]]
+    df = df.drop_duplicates(subset=["From", "Start Time (rounded)"], keep="first")
+    df = df.sort_values(by="Start Time").reset_index(drop=True)
+
     return df
+
+# get the df_missed table
+def get_missed_table(df, window_duration):
+    df_missed = df[(df['Direction'] == 'INBOUND') & (df['Duration'] == 0)]
+    
+    window_duration = datetime.timedelta(hours=window_duration)
+
+    # okay, vs mỗi cái missed call này
+    df_missed['not_call_back'] = 'Yes'
+    df_missed['start_search_window'] = df_missed['End Time']
+    df_missed['end_search_window'] = df_missed['End Time'] + window_duration
+    return df_missed
+
+# filter all the missed call that has not been called back
+def not_call_back_filter(df, df_missed):
+    
+    for index, row in df_missed.iterrows():
+        from_number = row["From Number"]
+        to_number = row["To"]
+        end_time = row["End Time"]
+        start_time_window = row["start_search_window"]
+        end_time_window = row["end_search_window"]
+
+        # okay, h nếu như cái From match cái to, tức là gọi ngược về
+        matching_rows = df[
+            (df["From"] == to_number)
+            & (df["To"] == from_number)
+            & (df["Start Time"] >= start_time_window)
+            & (df["Start Time"] <= end_time_window)
+        ]
+
+        # if the matchings rows is empty, then there is no call back within 1 hour
+        if matching_rows.empty:
+            df_missed.loc[index, "not_call_back"] = "Yes"
+        else:
+            df_missed.loc[index, "not_call_back"] = "No"    
+            
+    return df_missed
+        
+# count the missed call
+def count_missed_call(df_missed):
+    total_missed_call = df_missed.shape[0]
+    
+    # the total of not call back
+    total_not_call_back = df_missed[df_missed['not_call_back'] == 'Yes'].shape[0]
+    
+    # the total of call back
+    total_call_back = df_missed[df_missed['not_call_back'] == 'No'].shape[0]
+    
+    return total_missed_call, total_not_call_back, total_call_back
         
 def get_nurse_data(nurse_name):
     st.toast(f"Loading data for {nurse_name}...", icon="⏳") 
