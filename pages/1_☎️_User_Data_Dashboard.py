@@ -11,9 +11,11 @@ from io import StringIO
 
 st.title("Medkick User Data Dashboard")
 
+image_path = "medkicklogo.png"
+st.image(image_path, caption="", use_column_width=True)
+
 # import Get Nurse List
 from AWSSupport import GetNurseListFromServer, GetAllCsvDataFromS3
-
 
 def CleanDataInput(df):
 
@@ -45,8 +47,7 @@ def get_all_csv_data():
     return all_csv
                 
 def main():
-
-        
+   
     # load data
     with st.sidebar:
         st.write("## Currently Tracked Nurses")  
@@ -66,7 +67,6 @@ def main():
             if nurse_name:
                 st.session_state['nurse_name'] = i
             
-    
     nurse_name = st.session_state['nurse_name']
     df = get_nurse_data(nurse_name=nurse_name)    
     
@@ -74,8 +74,6 @@ def main():
 
     # Read only the first 300 rows
     df = df.head(1000)
-
-    st.dataframe(df)
 
     # Convert 'Start Time (local)' column to datetime format
     try:
