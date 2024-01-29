@@ -73,6 +73,9 @@ def main():
     # Sort the DataFrame by 'Start Time (rounded)' in descending order
     df = df.sort_values(by='Start Time (rounded)', ascending=False)
 
+    # Reset the index
+    df = df.reset_index(drop=True)
+
     # Read only the first 300 rows
     df = df.head(1000)
 
