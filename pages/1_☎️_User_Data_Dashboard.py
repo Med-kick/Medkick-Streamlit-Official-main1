@@ -33,16 +33,6 @@ def get_nurse_data(nurse_name):
     
     # load data
 
-# get all data
-@st.cache_data
-def get_all_csv_data():
-    all_csv = GetAllCsvDataFromS3()
-        
-    # loop over the all_csv and clean the data
-    for key, value in all_csv.items():
-        all_csv[key] = CleanDataInput(value)
-        
-    return all_csv
                 
 def main():
 
