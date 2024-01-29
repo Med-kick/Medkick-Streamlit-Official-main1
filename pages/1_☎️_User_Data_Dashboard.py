@@ -180,7 +180,7 @@ def main():
                         return f'Did not answer. Nurse did not call back in 10hr.'
             
                 answer_time = pd.to_datetime(answer_time_str)
-                end_time = pd.to_datetime(row['End Time (rounded)'])
+                end_time = pd.to_datetime(row['End Time'])
                 duration = row['Duration']
 
                 # Check if the call was answered for at least 30 seconds
