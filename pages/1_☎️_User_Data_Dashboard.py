@@ -9,8 +9,6 @@ import plotly.express as px
 # import StringIO
 from io import StringIO
 
-st.title("Call Reports Dashboard")
-
 image_path = "medkicklogo.png"
 st.image(image_path, caption="", use_column_width=True)
 
