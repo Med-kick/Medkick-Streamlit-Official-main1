@@ -118,10 +118,10 @@ def main():
     def extract_call_components(row):
         if row['Direction'] == 'INBOUND':
             from_component = re.sub(r'\D', '', row['From'])
-            to_component = re.sub(r'\D', '', row['To'])
+            to_component = re.sub(r'[^a-zA-Z]', '', row['To'])
         
         elif row['Direction'] == 'OUTBOUND':
-            from_component = re.sub(r'\D', '', row['To'])
+            from_component = re.sub(r'[^a-zA-Z]', '', row['From'])
             to_component = re.sub(r'\D', '', row['From'])
         else:
             from_component = None
