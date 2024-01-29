@@ -258,7 +258,7 @@ def main():
         # Count the number of calls that meet and do not meet the criteria
         met_criteria_count = len(filtered_df[filtered_df['Performance'].str.contains('Met')])
         Answer_Call_count = len(filtered_df[filtered_df['Performance'].str.contains('Met criteria. Answered')])
-        Missed_Call_count = len(filtered_df[filtered_df['Performance'].str.contains(('Met criteria. Did not answer.', 'Did not'))])
+        Missed_Call_count = len(filtered_df[filtered_df['Performance'].str.contains('Met criteria. Did not answer.') | filtered_df['Performance'].str.contains('Did not')])
         Nurse_Call_Back_count = len(filtered_df[filtered_df['Performance'].str.contains('Met criteria. Did not answer. Nurse called back')])
         Patient_Call_Back_count = len(filtered_df[filtered_df['Performance'].str.contains('Met criteria. Did not answer. Patient called back')])
         did_not_meet_criteria_count = len(filtered_df[filtered_df['Performance'].str.contains('Did not')])
