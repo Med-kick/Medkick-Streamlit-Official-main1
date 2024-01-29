@@ -203,6 +203,9 @@ def main():
     # Streamlit App
     st.title('Nurse Phone Call Performance')
 
+    # Add a slider for duration threshold (x)
+    selected_duration_threshold = st.sidebar.slider('Select Duration Threshold', min_value=1, max_value=100, value=10)  # You can adjust the min, max, and initial value accordingly
+
     # Convert 'Start Time (local)' column to datetime format
     df['Start Time (local)'] = pd.to_datetime(df['Start Time (local)'])
 
