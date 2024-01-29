@@ -45,8 +45,7 @@ def get_all_csv_data():
     return all_csv
                 
 def main():
-
-        
+  
     # load data
     with st.sidebar:
         st.write("## Currently Tracked Nurses")  
@@ -64,8 +63,7 @@ def main():
             
             # if the nurse_name is clicked, then update the session state
             if nurse_name:
-                st.session_state['nurse_name'] = i
-            
+                st.session_state['nurse_name'] = i        
     
     nurse_name = st.session_state['nurse_name']
     df = get_nurse_data(nurse_name=nurse_name)    
@@ -74,8 +72,6 @@ def main():
 
     # Read only the first 300 rows
     df = df.head(1000)
-
-    st.dataframe(df)
 
     # Convert 'Start Time (rounded)' column to datetime format
     try:
@@ -151,7 +147,7 @@ def main():
                     if not call_back_row_nurse.empty:
                         # Ensure that the nurse called back and it's an outbound call
                         if call_back_row_nurse['Direction'].values[0] == 'OUTBOUND':
-                            call_back_time = pd.to_datetime(call_back_row_nurse['Start Time (rounded)'].values[0]).tz_roundedize(None)
+                            call_back_time = pd.to_datetime(call_back_row_nurse['Start Time (rounded)'].values[0])
                             duration_call_back = call_back_row_nurse['Duration'].values[0]
                             return f'Met criteria. Did not answer. Nurse called back in 1hr. '
                         else:
@@ -159,7 +155,7 @@ def main():
                     elif not call_back_row_patient.empty:
                         # Ensure that the patient called back and it's an inbound call
                         if call_back_row_patient['Direction'].values[0] == 'INBOUND':
-                            call_back_time = pd.to_datetime(call_back_row_patient['Start Time (rounded)'].values[0]).tz_roundedize(None)
+                            call_back_time = pd.to_datetime(call_back_row_patient['Start Time (rounded)'].values[0])
                             duration_call_back = call_back_row_patient['Duration'].values[0]
                             return f'Met criteria. Did not answer. Patient called back in 1hr.'
                         else:
@@ -167,7 +163,7 @@ def main():
                     elif not call_back_nurse_1hr_10hr.empty:
                         # Ensure that the nurse called back and it's an outbound call
                         if call_back_nurse_1hr_10hr['Direction'].values[0] == 'OUTBOUND':
-                            call_back_time = pd.to_datetime(call_back_nurse_1hr_10hr['Start Time (rounded)'].values[0]).tz_roundedize(None)
+                            call_back_time = pd.to_datetime(call_back_nurse_1hr_10hr['Start Time (rounded)'].values[0])
                             duration_call_back = call_back_nurse_1hr_10hr['Duration'].values[0]
                             return f'Did not Met criteria. Did not answer. Nurse called back in 10hr>&>1hr. '
                         else:
@@ -175,7 +171,7 @@ def main():
                     elif not call_back_patient_1hr_10hr.empty:
                         # Ensure that the patient called back and it's an inbound call
                         if call_back_patient_1hr_10hr['Direction'].values[0] == 'INBOUND':
-                            call_back_time = pd.to_datetime(call_back_patient_1hr_10hr['Start Time (rounded)'].values[0]).tz_roundedize(None)
+                            call_back_time = pd.to_datetime(call_back_patient_1hr_10hr['Start Time (rounded)'].values[0])
                             duration_call_back = call_back_patient_1hr_10hr['Duration'].values[0]
                             return f'Did not Met criteria. Did not answer. Patient called back in 10hr>&>1hr.'
                         else:
@@ -183,8 +179,8 @@ def main():
                     else:
                         return f'Did not answer. Nurse did not call back in 10hr.'
             
-                answer_time = pd.to_datetime(answer_time_str).tz_roundedize(None)
-                end_time = pd.to_datetime(row['End Time (rounded)']).tz_roundedize(None)
+                answer_time = pd.to_datetime(answer_time_str)
+                end_time = pd.to_datetime(row['End Time (rounded)'])
                 duration = row['Duration']
 
                 # Check if the call was answered for at least 30 seconds
