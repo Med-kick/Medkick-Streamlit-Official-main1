@@ -429,12 +429,12 @@ def main():
 
         # Create a Plotly Express bar chart
         fig = px.bar(
-            x=['Answered', 'Missed','Called Back in 1hr by Nurse','Called Back in 1hr by Patient','Did not call back in 1hr'],
+            x=['Answered', 'Missed','Called Back in selected time by Nurse','Called Back in selected time by Patient','Did not call back in selected time'],
             y=[Answer_Call_count_x, Missed_Call_count_x, Nurse_Call_Back_count_x, Patient_Call_Back_count_x, did_not_meet_criteria_count_x],
             text=[Answer_Call_count_x, Missed_Call_count_x, Nurse_Call_Back_count_x, Patient_Call_Back_count_x, did_not_meet_criteria_count_x],  # Display count values on top of the bars
             labels={'y': 'Count', 'x': 'Criteria'},
-            color=['Answered', 'Missed','Called Back in 1hr by Nurse','Called Back in 1hr by Patient','Did not call back in 1hr'],
-            color_discrete_map={'Answered': '#5cb7a2', 'Missed': '#74e5cb', 'Called Back in 1hr by Nurse': 'yellow', 'Called Back in 1hr by Patient': 'orange', 'Did not call back in 1hr': 'red'}
+            color=['Answered', 'Missed','Called Back in selected time by Nurse','Called Back in selected time by Patient','Did not call back in selected time'],
+            color_discrete_map={'Answered': '#5cb7a2', 'Missed': '#74e5cb', 'Called Back in selected time by Nurse': 'yellow', 'Called Back in selected time by Patient': 'orange', 'Did not call back in selected time': 'red'}
         )
 
         # Update layout to display text on top of the bars
