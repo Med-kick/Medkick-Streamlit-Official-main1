@@ -75,7 +75,7 @@ def main():
     # Read only the first 300 rows
     df = df.head(1000)
 
-    print(df.columns)
+    st.dataframe(df)
 
     
     
