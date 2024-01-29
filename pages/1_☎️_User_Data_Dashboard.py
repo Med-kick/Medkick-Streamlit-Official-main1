@@ -70,6 +70,8 @@ def main():
     
     df = pd.DataFrame(df)
 
+    st.dataframe(df)
+
     # Sort the DataFrame by 'Start Time (rounded)' in descending order
     df = df.sort_values(by='Start Time (rounded)', ascending=False)
 
