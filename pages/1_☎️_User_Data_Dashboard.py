@@ -17,24 +17,6 @@ from AWSSupport import GetNurseListFromServer, GetAllCsvDataFromS3
 
 def CleanDataInput(df):
     
-    # convert the From Number and To Number to string
-    df["From"] = df["From"].astype(str)
-    df["To"] = df["To"].astype(str)
-    
-    # Your previous data cleaning steps
-    df = df.drop(['Start Time (local)', 'Answer Time (local)', 'End Time (local)'], axis=1)
-    df["Start Time"] = pd.to_datetime(df["Start Time"], errors="coerce")
-    df["Answer Time"] = pd.to_datetime(df["Answer Time"], errors="coerce")
-    df["End Time"] = pd.to_datetime(df["End Time"], errors="coerce")
-    df["Duration"] = df["Duration"].astype(int)
-    df["Disposition"] = df["Disposition"].astype(int)
-    df["From Number"] = df["From"].apply(lambda x: re.findall(r"\((\d+)\)", x)[0] if re.findall(r"\((\d+)\)", x) else np.nan)
-    df["To Number"] = df["To"].apply(lambda x: re.findall(r"\((\d+)\)", x)[0] if re.findall(r"\((\d+)\)", x) else np.nan)
-    df["Start Time (rounded)"] = df["Start Time"].dt.round("min")
-    df = df[["From", "From Number", "To", 'To Number', "Start Time", "Start Time (rounded)", "Answer Time", "End Time", "Duration", "Disposition", "Direction"]]
-    df = df.drop_duplicates(subset=["From", "Start Time (rounded)"], keep="first")
-    df = df.sort_values(by="Start Time").reset_index(drop=True)
-
     return df
 
 # get the df_missed table
