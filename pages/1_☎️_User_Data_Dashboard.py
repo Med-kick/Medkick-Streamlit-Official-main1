@@ -256,15 +256,15 @@ def main():
         filtered_df['Performance'] = filtered_df.apply(evaluate_performance, axis=1)
 
         # Count the number of calls that meet and do not meet the criteria
-        met_criteria_count = len(filtered_df[filtered_df['Performance'].str.startswith('Met')])
-        Answer_Call_count = len(filtered_df[filtered_df['Performance'].str.startswith('Met criteria. Answered')])
-        Missed_Call_count = len(filtered_df[filtered_df['Performance'].str.startswith(('Met criteria. Did not answer.', 'Did not'))])
-        Nurse_Call_Back_count = len(filtered_df[filtered_df['Performance'].str.startswith('Met criteria. Did not answer. Nurse called back')])
-        Patient_Call_Back_count = len(filtered_df[filtered_df['Performance'].str.startswith('Met criteria. Did not answer. Patient called back')])
-        did_not_meet_criteria_count = len(filtered_df[filtered_df['Performance'].str.startswith('Did not')])
+        met_criteria_count = len(filtered_df[filtered_df['Performance'].str.contains('Met')])
+        Answer_Call_count = len(filtered_df[filtered_df['Performance'].str.contains('Met criteria. Answered')])
+        Missed_Call_count = len(filtered_df[filtered_df['Performance'].str.contains(('Met criteria. Did not answer.', 'Did not'))])
+        Nurse_Call_Back_count = len(filtered_df[filtered_df['Performance'].str.contains('Met criteria. Did not answer. Nurse called back')])
+        Patient_Call_Back_count = len(filtered_df[filtered_df['Performance'].str.contains('Met criteria. Did not answer. Patient called back')])
+        did_not_meet_criteria_count = len(filtered_df[filtered_df['Performance'].str.contains('Did not')])
         # Count the call-backs > 1hr and < 10hr
-        call_back_nurse_1hr_10hr_count = len(filtered_df[filtered_df['Performance'].str.startswith('Did not Met criteria. Did not answer. Nurse called back')])
-        call_back_patient_1hr_10hr_count = len(filtered_df[filtered_df['Performance'].str.startswith('Did not Met criteria. Did not answer. Patient called back')])
+        call_back_nurse_1hr_10hr_count = len(filtered_df[filtered_df['Performance'].str.contains('Did not Met criteria. Did not answer. Nurse called back')])
+        call_back_patient_1hr_10hr_count = len(filtered_df[filtered_df['Performance'].str.contains('Did not Met criteria. Did not answer. Patient called back')])
 
         # Count the number of inbound and outbound calls
         inbound_call_count = len(filtered_df[filtered_df['Direction'] == 'INBOUND'])
@@ -325,26 +325,23 @@ def main():
         elif performance_criteria == 'Answered':
             # Display only specific columns
             display_columns = ['From', 'To', 'Start Time (rounded)', 'Duration', 'Direction', 'Performance']
-            st.write(filtered_df[filtered_df['Performance'].str.startswith('Met criteria. Answered')][display_columns])
+            st.write(filtered_df[filtered_df['Performance'].str.contains('Met criteria. Answered')][display_columns])
         elif performance_criteria == 'Missed':
             # Display only specific columns
             display_columns = ['From', 'To', 'Start Time (rounded)', 'Duration', 'Direction', 'Performance']
-            st.write(filtered_df[filtered_df['Performance'].str.startswith('Met criteria. Did not answer.') | filtered_df['Performance'].str.startswith('Did not')])
+            st.write(filtered_df[filtered_df['Performance'].str.contains('Met criteria. Did not answer.') | filtered_df['Performance'].str.contains('Did not')])
         elif performance_criteria == 'No Follow-up':
             # Display only specific columns
             display_columns = ['From', 'To', 'Start Time (rounded)', 'Duration', 'Direction', 'Performance']
-            st.write(filtered_df[filtered_df['Performance'].str.startswith('Did not')][display_columns])
+            st.write(filtered_df[filtered_df['Performance'].str.contains('Did not')][display_columns])
         elif performance_criteria == 'Follow-up >1hr and <10hr':
             # Display only specific columns
             display_columns = ['From', 'To', 'Start Time (rounded)', 'Duration', 'Direction', 'Performance']
-            st.write(filtered_df[filtered_df['Performance'].str.startswith('Did not Met criteria. Did not answer. Nurse called back') | filtered_df['Performance'].str.startswith('Did not Met criteria. Did not answer. Patient called back')])
+            st.write(filtered_df[filtered_df['Performance'].str.contains('Did not Met criteria. Did not answer. Nurse called back') | filtered_df['Performance'].str.contains('Did not Met criteria. Did not answer. Patient called back')])
         elif performance_criteria == 'Follow-up <1hr':
             # Display only specific columns
             display_columns = ['From', 'To', 'Start Time (rounded)', 'Duration', 'Direction', 'Performance']
-            st.write(filtered_df[filtered_df['Performance'].str.startswith('Met criteria')][display_columns])
-    
-
-    
-    
+            st.write(filtered_df[filtered_df['Performance'].str.contains('Met criteria')][display_columns])
+       
 if __name__ == "__main__":
     main()
