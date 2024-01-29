@@ -79,6 +79,30 @@ def main():
     # Read only the first 300 rows
     df = df.head(1000)
 
+    # Convert 'Start Time' column to datetime format
+    df['Start Time'] = pd.to_datetime(df['Start Time'])
+
+    # Format the datetime column for display
+    df['Start Time'] = df['Start Time'].dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    # Convert 'Start Time (rounded)' column to datetime format
+    df['Start Time (rounded)'] = pd.to_datetime(df['Start Time (rounded)'])
+
+    # Format the datetime column for display
+    df['Start Time (rounded)'] = df['Start Time (rounded)'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Convert 'Answer Time' column to datetime format
+    df['Answer Time'] = pd.to_datetime(df['Answer Time'])
+
+    # Format the datetime column for display
+    df['Answer Time'] = df['Answer Time'].dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    # Convert 'End Time' column to datetime format
+    df['End Time'] = pd.to_datetime(df['End Time'])
+
+    # Format the datetime column for display
+    df['End Time'] = df['End Time'].dt.strftime('%Y-%m-%d %H:%M:%S')
+
     st.dataframe(df)
 
     # Convert 'Start Time (rounded)' column to datetime format
