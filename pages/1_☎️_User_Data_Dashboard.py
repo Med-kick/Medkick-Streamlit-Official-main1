@@ -70,6 +70,9 @@ def main():
     
     df = pd.DataFrame(df)
 
+    # Sort the DataFrame by 'Start Time (rounded)' in descending order
+    df = df.sort_values(by='Start Time (rounded)', ascending=False)
+
     # Read only the first 300 rows
     df = df.head(1000)
 
