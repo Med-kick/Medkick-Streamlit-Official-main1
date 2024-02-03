@@ -65,13 +65,12 @@ def get_all_csv_data():
             else:
                 print(f"Empty DataFrame or no columns in {file_name}")
 
-        # Your existing code...
-
         return all_csv
 
     except Exception as e:
-        print(f"Error: {e}")
-        # Handle the exception as needed
+        print(f"Error in get_all_csv_data: {e}")
+        # Log the error or handle it as needed
+        return None  # Return None to indicate an error
 
 # Function to extract call components based on direction
 def extract_call_components(row):
