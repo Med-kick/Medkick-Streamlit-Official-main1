@@ -27,15 +27,40 @@ def GetAllCsvDataFromS3():
     # Loop through each object, if the file is a CSV, read it into a DataFrame
     for obj in objects.get('Contents', []):
         file_name = obj['Key']
-        if file_name.endswith('.csv') and 'NursesList' not in file_name:  # Only process CSV files and exclude NursesName
-            response = s3_client.get_object(Bucket=BUCKET_NAME, Key=file_name)
-            df = pd.read_csv(response['Body'])   
+        try:
+            if file_name.endswith('.csv') and 'NursesList' not in file_name:  # Only process CSV files and exclude NursesName
+                response = s3_client.get_object(Bucket=BUCKET_NAME, Key=file_name)
+                df = pd.read_csv(response['Body'])   
+                
+                # print the df
+                print(df)
+                # PRINT THE columns name
+                print(df.columns)
+                
+                # Add the DataFrame to the dictionary        
+                data_dict[file_name] = df
+                print('Added', file_name, 'to data_dict')
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            print('Failed to add', file_name, 'to data_dict')
             
-            # Add the DataFrame to the dictionary        
-            data_dict[file_name] = df
-            print('Added', file_name, 'to data_dict')
             
     # this is to signify when they run the get data multiple times
+    def CheckDataDict(data_dict):
+        # Check if the data_dict is a valid dictionary
+        if isinstance(data_dict, dict):
+            for key, value in data_dict.items():
+                # Check if the key is a string and the value is a DataFrame
+                if isinstance(key, str) and isinstance(value, pd.DataFrame):
+                    print(f"Valid data: {key}")
+                else:
+                    print(f"Invalid data: {key}")
+        else:
+            print("Invalid data_dict")
+
+    # Call the function to check the data_dict
+    CheckDataDict(data_dict)
+    
     
     return data_dict
 

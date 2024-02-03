@@ -15,9 +15,14 @@ st.image(image_path, caption="", use_column_width=True)
 # import Get Nurse List
 from AWSSupport import GetNurseListFromServer, GetAllCsvDataFromS3
 
-def CleanDataInput(df):
 
-    return df
+def CleanDataInput(df):
+    try:
+        return df
+    except Exception as e:
+        print(e)
+        # streamlit error
+        st.error(f"An error occurred: {str(e)}")
         
 def get_nurse_data(nurse_name):
     st.toast(f"Loading data for {nurse_name}...", icon="⏳") 
@@ -34,14 +39,34 @@ def get_nurse_data(nurse_name):
     # load data
 
 # get all data
+
+# cache the data
 @st.cache_data
 def get_all_csv_data():
     all_csv = GetAllCsvDataFromS3()
-        
+    print('this is all data', all_csv)
+
+    # check if the all_csv is a valid dictionary
+    if isinstance(all_csv, dict):
+        for key, value in all_csv.items():
+            # Check if the key is a string and the value is a DataFrame
+            if isinstance(key, str) and isinstance(value, pd.DataFrame):
+                print(f"Valid data: {key}")
+            else:
+                print(f"Invalid data: {key}")
+
     # loop over the all_csv and clean the data
-    for key, value in all_csv.items():
-        all_csv[key] = CleanDataInput(value)
-        
+    for key, df in all_csv.items():
+        print('Processing:', key)
+        try:
+            # Since df is already a DataFrame, no need to read it again
+            cleaned_df = CleanDataInput(df)
+            all_csv[key] = cleaned_df
+        except Exception as e:
+            print(e)
+            # streamlit error
+            st.error(f"An error occurred: {str(e)}")
+
     return all_csv
 
 # Function to extract call components based on direction
@@ -160,7 +185,7 @@ def evaluate_performance(row):
 
     except Exception as e:
             return f"Error: {e}"
-                
+
 def main():
    
     # load data
