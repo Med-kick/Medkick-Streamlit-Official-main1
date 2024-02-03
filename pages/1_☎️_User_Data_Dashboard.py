@@ -42,7 +42,7 @@ def get_nurse_data(nurse_name):
 
 # cache the data
 @st.cache_data
-def GetAllCsvDataFromS3():
+def get_all_csv_data():
     try:
         # Assuming you have a list of file names in the 'files' variable
         files = [...]
