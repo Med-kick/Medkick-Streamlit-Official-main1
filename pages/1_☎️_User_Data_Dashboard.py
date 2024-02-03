@@ -42,32 +42,36 @@ def get_nurse_data(nurse_name):
 
 # cache the data
 @st.cache_data
-def get_all_csv_data():
-    all_csv = GetAllCsvDataFromS3()
-    print('this is all data', all_csv)
+def GetAllCsvDataFromS3():
+    try:
+        # Assuming you have a list of file names in the 'files' variable
+        files = [...]
 
-    # check if the all_csv is a valid dictionary
-    if isinstance(all_csv, dict):
-        for key, value in all_csv.items():
-            # Check if the key is a string and the value is a DataFrame
-            if isinstance(key, str) and isinstance(value, pd.DataFrame):
-                print(f"Valid data: {key}")
+        # Initialize an empty dictionary to store DataFrames
+        all_csv = {}
+
+        # Loop over files and read data
+        for file_name in files:
+            print(f"Processing file: {file_name}")
+            response = s3_client.get_object(Bucket=BUCKET_NAME, Key=file_name)
+            
+            # Read the CSV file into a DataFrame
+            df = pd.read_csv(response['Body'])
+
+            # Check if the DataFrame has columns before processing
+            if not df.empty and not df.columns.empty:
+                print(f"Columns in {file_name}: {df.columns}")
+                all_csv[file_name] = df
             else:
-                print(f"Invalid data: {key}")
+                print(f"Empty DataFrame or no columns in {file_name}")
 
-    # loop over the all_csv and clean the data
-    for key, df in all_csv.items():
-        print('Processing:', key)
-        try:
-            # Since df is already a DataFrame, no need to read it again
-            cleaned_df = CleanDataInput(df)
-            all_csv[key] = cleaned_df
-        except Exception as e:
-            print(e)
-            # streamlit error
-            st.error(f"An error occurred: {str(e)}")
+        # Your existing code...
 
-    return all_csv
+        return all_csv
+
+    except Exception as e:
+        print(f"Error: {e}")
+        # Handle the exception as needed
 
 # Function to extract call components based on direction
 def extract_call_components(row):
