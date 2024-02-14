@@ -37,7 +37,7 @@ def get_nurse_data(nurse_name):
 # get all data
 
 # cache the data
-@st.cache_data
+# @st.cache_data
 def get_all_csv_data():
     all_csv = GetAllCsvDataFromS3()
     print('this is all data', all_csv)
